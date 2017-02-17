@@ -1,7 +1,7 @@
 //Author: Ed Dam
 
 module.exports = [
-  { "type": "heading", "defaultValue": "Health v1.0" },
+  { "type": "heading", "defaultValue": "Health v1.1" },
   { "type": "text", "defaultValue": "by Edward Dam" },
   { "type": "section", "items": [
     { "type": "heading", "defaultValue": "Time" },
