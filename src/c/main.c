@@ -43,7 +43,7 @@ static char datemd_buffer[13];
 
 // health events
 static char sleep_buffer[7];
-static char heart_buffer[8];
+static char heart_buffer[4];
 static char steps_buffer[6];
 
 // load options
