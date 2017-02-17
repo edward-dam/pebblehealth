@@ -43,7 +43,7 @@ static char datemd_buffer[13];
 
 // health events
 static char sleep_buffer[7];
-static char heart_buffer[4];
+static char heart_buffer[8];
 static char steps_buffer[6];
 
 // load options
@@ -113,6 +113,14 @@ static void health_handler(HealthEventType event, void *context) {
     int length = strlen(sleep_buffer);
     snprintf(sleep_buffer+length, (sizeof sleep_buffer) - length, "%s", mins_buffer);
     text_layer_set_text(sleep_layer, sleep_buffer);
+  } else if (event == HealthEventHeartRateUpdate) {
+    HealthValue value = health_service_peek_current_value(HealthMetricHeartRateBPM);
+    if( value > 0 ) {
+      snprintf(heart_buffer, sizeof(heart_buffer), "%d", (int)value);
+      text_layer_set_text(heart_layer, heart_buffer);
+    } else {
+      text_layer_set_text(heart_layer, "--");
+    }
   }
 }
 
@@ -342,6 +350,7 @@ static void main_window_load(Window *window) {
   // subscribe to health
   if(health_service_events_subscribe(health_handler, NULL)) {
     health_handler(HealthEventSleepUpdate, NULL);
+    health_handler(HealthEventHeartRateUpdate, NULL);
     health_handler(HealthEventMovementUpdate, NULL);
   }
 }
