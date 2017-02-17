@@ -4,13 +4,13 @@
         "pebble-clay": "^1.0.0"
     },
     "keywords": [],
-    "name": "health-v1.0",
+    "name": "health-v1.1",
     "pebble": {
         "capabilities": [
             "configurable",
             "health"
         ],
-        "displayName": "Health v1.0",
+        "displayName": "Health v1.1",
         "enableMultiJS": true,
         "messageKeys": [
             "HOUR",
@@ -63,5 +63,5 @@
             "watchface": true
         }
     },
-    "version": "1.0.0"
+    "version": "1.10.0"
 }
