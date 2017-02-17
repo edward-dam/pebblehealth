@@ -19,14 +19,6 @@ module.exports = [
       { "label": "Month - Day", "value": "true" } ],
     "defaultValue": "false" } ]
   },
-  { "type": "section", "items": [
-    { "type": "heading", "defaultValue": "Heart Rate" },
-    { "type": "text", "defaultValue": "Please Enable or Disable HR" },
-    { "type": "radiogroup", "messageKey": "HEART", "options": [
-      { "label": "Disable", "value": "false" },
-      { "label": "Enable", "value": "true" } ],
-    "defaultValue": "false" } ]
-  },
   { "type": "text", "defaultValue": "Thank you for using my watchface." },
   { "type": "submit", "defaultValue": "Save Settings" }
 ];

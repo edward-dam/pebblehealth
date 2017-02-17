@@ -32,16 +32,19 @@ bool bt_startup = true;
 // saved settings
 uint32_t hour_setting = 0;
 uint32_t date_setting = 1;
-uint32_t heart_setting = 2;
 bool hour_bool;
 bool date_bool;
-bool heart_bool;
 
 // load time
 static char time12_buffer[6];
 static char time24_buffer[6];
 static char datedm_buffer[13];
 static char datemd_buffer[13];
+
+// health events
+static char sleep_buffer[7];
+static char heart_buffer[4];
+static char steps_buffer[6];
 
 // load options
 static void load_options() {
@@ -76,22 +79,40 @@ static void load_options() {
   }
 }
 
-// update options/weather
+// update options
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   // collect options
   Tuple *hour_tuple = dict_find(iterator, MESSAGE_KEY_HOUR);
   Tuple *date_tuple = dict_find(iterator, MESSAGE_KEY_DATE);
-  Tuple *heart_tuple = dict_find(iterator, MESSAGE_KEY_HEART);
 
   // save options
-  if(hour_tuple && heart_tuple) {
+  if(hour_tuple && date_tuple) {
     char *hour_string = hour_tuple->value->cstring;
     char *date_string = date_tuple->value->cstring;
-    char *heart_string = heart_tuple->value->cstring;
     persist_write_string(hour_setting, hour_string);
     persist_write_string(date_setting, date_string);
-    persist_write_string(heart_setting, heart_string);
     load_options();
+  }
+}
+
+// health event changed
+static void health_handler(HealthEventType event, void *context) {
+  if (event == HealthEventMovementUpdate) {
+    snprintf(steps_buffer, sizeof(steps_buffer), "%d", (int)health_service_sum_today(HealthMetricStepCount));
+    text_layer_set_text(steps_layer, steps_buffer);
+  } else if (event == HealthEventSleepUpdate) {
+    static int seconds, minutes, hours, remainder;
+    static char mins_buffer[4], hour_buffer[4];
+    seconds = (int)health_service_sum_today(HealthMetricSleepSeconds);
+    hours = seconds / 3600;
+    remainder = seconds % 3600;
+    minutes = remainder / 60;
+    snprintf(hour_buffer, sizeof(hour_buffer), "%dh", (int)hours);
+    snprintf(mins_buffer, sizeof(mins_buffer), "%dm", (int)minutes);
+    snprintf(sleep_buffer, sizeof(sleep_buffer), "%s", hour_buffer);
+    int length = strlen(sleep_buffer);
+    snprintf(sleep_buffer+length, (sizeof sleep_buffer) - length, "%s", mins_buffer);
+    text_layer_set_text(sleep_layer, sleep_buffer);
   }
 }
 
@@ -254,7 +275,7 @@ static void main_window_load(Window *window) {
   text_layer_set_font(sleep_emoji, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
   text_layer_set_font(sleep_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
   text_layer_set_text(sleep_emoji, "\U0001F634");
-  text_layer_set_text(sleep_layer, "7h30m");
+  text_layer_set_text(sleep_layer, "..sleep..");
   layer_add_child(window_layer, text_layer_get_layer(sleep_emoji));
   layer_add_child(window_layer, text_layer_get_layer(sleep_layer));
   
@@ -294,7 +315,7 @@ static void main_window_load(Window *window) {
   text_layer_set_font(heart_emoji, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
   text_layer_set_font(heart_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
   text_layer_set_text(heart_emoji, "\U00002764");
-  text_layer_set_text(heart_layer, "60");
+  text_layer_set_text(heart_layer, "--");
   layer_add_child(window_layer, text_layer_get_layer(heart_emoji));
   layer_add_child(window_layer, text_layer_get_layer(heart_layer));
 
@@ -307,7 +328,7 @@ static void main_window_load(Window *window) {
   text_layer_set_font(steps_emoji, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
   text_layer_set_font(steps_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
   text_layer_set_text(steps_emoji, "\U0001F425");
-  text_layer_set_text(steps_layer, "8000");
+  text_layer_set_text(steps_layer, "steps");
   layer_add_child(window_layer, text_layer_get_layer(steps_emoji));
   layer_add_child(window_layer, text_layer_get_layer(steps_layer));
 
@@ -317,10 +338,18 @@ static void main_window_load(Window *window) {
   text_layer_set_text_alignment(date_layer, GTextAlignmentCenter);
   text_layer_set_font(date_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
   layer_add_child(window_layer, text_layer_get_layer(date_layer));
+  
+  // subscribe to health
+  if(health_service_events_subscribe(health_handler, NULL)) {
+    health_handler(HealthEventSleepUpdate, NULL);
+    health_handler(HealthEventMovementUpdate, NULL);
+  }
 }
 
 // window unload
 static void main_window_unload(Window *window) {
+  // unsubscribe from events
+  health_service_events_unsubscribe();
   // destroy text layers
   text_layer_destroy(date_layer);
   text_layer_destroy(steps_layer);

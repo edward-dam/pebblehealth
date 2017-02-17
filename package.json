@@ -14,8 +14,7 @@
         "enableMultiJS": true,
         "messageKeys": [
             "HOUR",
-            "DATE",
-            "HEART"
+            "DATE"
         ],
         "projectType": "native",
         "resources": {
@@ -61,7 +60,7 @@
         ],
         "uuid": "2ba157bd-ba15-4c4d-828f-ab9c59a32277",
         "watchapp": {
-            "watchface": false
+            "watchface": true
         }
     },
     "version": "1.0.0"
