@@ -2,6 +2,7 @@
 ###screenshots
 
 ![diorite.png](/assets/diorite.png)
+![basalt-bluetooth.png](/assets/basalt-bluetooth.png)
 
 ###banner
 
