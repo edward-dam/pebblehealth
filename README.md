@@ -14,6 +14,7 @@ https://apps.getpebble.com/applications/58a76ecc6ca3876a5e000504
 
 ### description
 <br />
+
 Health focused watchface, includes:
  - day of the week
  - sleep duration
@@ -21,7 +22,7 @@ Health focused watchface, includes:
  - time & date
  - current heart rate
  - current steps total
- - bluetooth symbol<br />
+ - bluetooth symbol
 <br />
 
 Options:
